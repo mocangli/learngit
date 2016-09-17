@@ -20,21 +20,23 @@
 </head>
 <body>
     <nav class="uk-navbar uk-navbar-attached uk-margin-bottom ">
-        <div class="uk-container uk-container-center">
-            <a href="/" class="uk-navbar-brand">Manage Files</a>
-            <ul class="uk-navbar-nav">
-                <li data-url="blogs"><a href="/"><i class="uk-icon-home"></i> 首页</a></li>
-                <li><a target="_blank" href="https://github.com/mocangli/learngit"><i class="uk-icon-code"></i> 源码</a></li>   
+        <div class="uk-container uk-container-center uk-tab">
+            <a href="/" class="uk-navbar-brand uk-hidden-small">Manage Files</a>
+            <a href="/"  class="uk-navbar-brand uk-hidden-large"><i class="uk-icon-home"></i></a>
+            <ul class="uk-navbar-nav uk-hidden-small">
+                <li data-url="blogs" class="uk-active"><a href="/"><i class="uk-icon-home"></i> 首页</a></li>
+                <li><a href="/"  class="uk-navbar-brand uk-hidden-large"><i class="uk-icon-home"></i></a></li>
+                <li><a target="_blank" href="https://github.com/mocangli/learngit"><i class="uk-icon-code"></i> 源码</a></li>  
             </ul>
             
-            <div class="uk-navbar-content uk-hidden-small">
+            <div class="uk-navbar-content">
                 <form id='searchForm' class="uk-form  uk-margin-remove uk-display-inline-block" action="/searchfile/" method="GET">
-                    <input  name='filenum' type="text" placeholder="search">
-                    <button type=submit class="uk-button uk-button-primary"><i class="uk-icon-search"></i> 搜索</button>   
+                    <input  name='filenum' type="text" placeholder="search" class="uk-form-small">
+                    <button type=submit class="uk-button uk-button-primary uk-hidden-small"><i class="uk-icon-search"></i> 搜索</button>  
+                    <button type=submit class="uk-button uk-button-primary uk-hidden-large"><i class="uk-icon-search"></i></button> 
                 </form>
             </div>
-
-            <div class="uk-navbar-flip">
+            <div class="uk-hidden-small uk-navbar-flip">
                 <ul class="uk-navbar-nav">
                 {% if user %}
                     <li class="uk-parent" data-uk-dropdown>
@@ -46,10 +48,45 @@
                         </div>
                     </li>
                 {% else %}
-                    <li><a href="/signin"><i class="uk-icon-sign-in"></i> 登陆</a></li>
-                    <li><a href="/register"><i class="uk-icon-edit"></i> 注册</a></li>
+                    <li>
+                        <a href="/signin" class="uk-hidden-small"><i class="uk-icon-sign-in"></i> 登陆</a>
+                        <a href="/signin" class="uk-visible-small"><i class="uk-icon-sign-in"></i></a>
+                    </li>
+                    <li>
+                        <a href="/register" class="uk-hidden-small"><i class="uk-icon-edit"></i> 注册</a>
+                        <a href="/register" class="uk-visible-small"><i class="uk-icon-edit"></i></a>
+                    </li>
                 {% endif %}
                 </ul>
+            </div>
+
+            <div class='uk-navbar-nav uk-visible-small uk-navbar-flip'>
+                <a href="#example" data-uk-offcanvas></a>
+                <button class="uk-button" data-uk-offcanvas="{target:'#example'}">
+                    <!-- 这是开关抽屉式边栏的按钮 --><i class="uk-icon-chevron-right"></i></button>
+                <div id='example' class="uk-offcanvas">
+                    <div class="uk-offcanvas-bar">
+                        <ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon">
+                            <li><a target="_blank" href="https://github.com/mocangli/learngit"><i class="uk-icon-code"></i> 源码</a></li>
+
+                        {% if user %}
+                            <li class="uk-parent" data-uk-dropdown>
+                                <a href="#0"><i class="uk-icon-user"></i> {{ user.name }}</a>
+                                <div class="uk-dropdown uk-dropdown-navbar">
+                                    <ul class="uk-nav uk-nav-navbar">
+                                        <li><a href="/signout"><i class="uk-icon-sign-out"></i> 登出</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        {% else %}
+                            <li><a href="/signin"><i class="uk-icon-sign-in"></i> 登陆</a>   
+                            </li>
+                            <li><a href="/register"><i class="uk-icon-edit"></i> 注册</a>
+                            </li>
+                        {% endif %}
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -69,7 +106,7 @@
                     <a target="_blank" href="http://weibo.com/liaoxuefeng" class="uk-icon-button uk-icon-weibo"></a>
                     <a target="_blank" href="https://github.com/mocangli" class="uk-icon-button uk-icon-github"></a>
                 </p>
-                <p>Powered by <a href="http://www.getuikit.net">uikit</a>. Copyright &copy; 2016.
+                <p>Powered by <a href="http://www.getuikit.net">uikit</a>. Copyright &copy; 2016.</p>
                 <p><a href="http://www.liaoxuefeng.com/" target="_blank">www.liaoxuefeng.com</a>. All rights reserved.</p>
                 <a target="_blank" href="http://www.w3.org/TR/html5/"><i class="uk-icon-html5" style="font-size:64px; color: #444;"></i></a>
             </div>
