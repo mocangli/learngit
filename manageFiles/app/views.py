@@ -120,15 +120,14 @@ def creat_response(user):
     user.passwd = '******'
     # 把对象转换成json格式返回
     r.content = user.toJSON()
-    print(r.content)
     return r
 # 首页
 def index(request):
     page = request.GET.get('page','1')
     user = get_auth(request)
     # 用户非管理员或不存在,将会重定向到登录页面
-    if user is None: #or not user.admin:
-        return HttpResponseRedirect('/signin/')
+    #if user is None or not user.admin:
+        #return HttpResponseRedirect('/signin/')
     return render(request,'index.html',{'user':user,'page_index':get_page_index(page)})
 
 # 获取工作流信息
@@ -137,9 +136,10 @@ def api_files(request):
     user = get_auth(request)
     page = request.GET.get('page','1')
     page_index = get_page_index(page)
-    print(user.pk)
+    if user is None:
+        p = Page(1, page_index)
+        return JsonResponse(dict(page=page2dict(p), files=()))
     num = Myfile.objects.filter(user_id=user.pk).filter(file_display=False).count()
-    print(num)
     p = Page(num, page_index)
     if num == 0:
         return JsonResponse(dict(page=page2dict(p), files=()))
@@ -188,7 +188,6 @@ def api_register_user(request):
 
         # 保存这个用户到数据库用户表
         user.save()
-        print('save user OK')
         return creat_response(user)
 # 登录    
 def signin(request):
@@ -225,11 +224,9 @@ def api_authenticate(request):
 # 注销
 def signout(request):
     referer = request.META['HTTP_REFERER']
-    print('referer:%s'%referer)
     r = HttpResponseRedirect(referer or '/')
     # 清理掉cookie的用户信息数据
     r.delete_cookie(COOKIE_NAME)
-    print('user signed out')
     return r
 # -------------------------------> 文件管理 <------------------------------------
 
@@ -281,9 +278,7 @@ def file_iterator(file_path, chunk_size=512):
 # 下载文件
 def file_download(request):
     id = request.GET.get('id')
-    print(id)
     file = Myfile.objects.get(pk=id)
-    print(file)
     the_file_path = file.file_path.path
     the_file_name = file.filename.encode('utf-8').decode("ISO-8859-1")
     response = FileResponse(file_iterator(the_file_path))
@@ -294,7 +289,6 @@ def file_download(request):
 # 删除文件
 def file_delete(request):
     id = request.GET.get('id')
-    print(id)
     file = Myfile.objects.get(pk=id)
     if file is None:
         raise APIResourceNotFoundError('file')
@@ -332,7 +326,6 @@ def api_file_search(request):
 # 创建审批团队
 def checkForm(request):
     id = request.GET.get('id')
-    print(id)
     user = get_auth(request)
 
     return render(request,'checkForm.html',{'user':user,'id':id})
@@ -370,7 +363,6 @@ def api_process(request):
     user = get_auth(request)
     review = Review.objects.get(file_id=file_id)
     id = review.id
-    print('id:%s'%id)
     comments = Comment.objects.filter(review_id=id)
     files = Myfile.objects.filter(pk=file_id)
     return JsonResponse({'review':review.toDict(), 'comments':json.loads(serialize('json',comments)),'files':json.loads(serialize('json',files))})
@@ -403,20 +395,17 @@ def api_create_comment(request):
     i = 0
     for i in range(len(l)):
         if l[i] == user.name:
-            print(l[i])
             review.dispose_user = l[i+1]
             review.save()
     file = Myfile.objects.get(pk=file_id)
     file.dispose_user = review.dispose_user
     if review.dispose_user == 'success':
-        print('设置dispose_user')
         file.file_display = True
     file.save()
     # 构建一条评论数据
     comment = Comment(review_id=review.id, user_id=user.id, user_name=user.name, content=content.strip())
     # 保存到评论表里
     comment.save()
-    print(file.toDict())
     return JsonResponse({'comment':comment.toDict()})
 
 # 退回申请人
@@ -424,7 +413,6 @@ def api_backprocess(request):
     data = json.loads(request.body.decode('utf-8'))
     file_id = data['id']
     content = data['content']
-    print(file_id)
     # 对某个博客发表评论
     user = get_auth(request)
     # 必须为登陆状态下，评论
@@ -455,7 +443,6 @@ def sign_off_files(request):
         return HttpResponseRedirect('/')
     files = Myfile.objects.filter(dispose_user=user.name).filter(file_display=False)
     num = len(files)
-    print(num)
     p = Page(num, page_index)
     files = files.order_by('-created_at')[p.offset: p.offset+p.limit]
     return render(request,'signOff_files.html',{'user':user,'page':page2dict(p),'files':json.loads(serialize('json',files))})

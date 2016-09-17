@@ -24,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'k$zh+kw+nwp=!(7j)62r*3m)5h!arg_7-odp=qm4kif)=*kt=7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -82,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'manageFiles',
         'USER': 'root',
-        'PASSWORD': 'password',
+        'PASSWORD': 't103302217',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
@@ -126,3 +126,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+#MEDIA_ROOT = '/Users/apple/Desktop/django/'

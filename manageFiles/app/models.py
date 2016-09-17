@@ -4,8 +4,10 @@
 import time,uuid,json
 from django.db import models
 from django.http import JsonResponse
+from django.core.files.storage import FileSystemStorage
 
 
+fs = FileSystemStorage(location='/srv/manageFiles')
 # Create your models here.
 def get_file_path(instance,filename):
     productionName = instance.department
@@ -50,7 +52,8 @@ class Myfile(models.Model):
     created_at      = models.DateTimeField('修改时间',auto_now=True) 
     user_name       = models.CharField('创建者',max_length=50)
     user_id         = models.CharField(max_length=50)
-    file_path       = models.FileField('路径',upload_to = get_file_path)
+    #file_path       = models.FileField('路径',upload_to = get_file_path)
+    file_path       = models.FileField('路径',upload_to = get_file_path,storage=fs)
     file_display    = models.BooleanField('是否可见',default=False)
     dispose_user    = models.CharField('处理者',max_length=50,null=True)
 
