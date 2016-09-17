@@ -1,0 +1,104 @@
+{% extends '__base__.html' %}
+
+{% block title %}创建审批流程{% endblock %}
+
+{% block beforehead %}
+<script>
+var file_id = '{{ id }}';
+
+$(function () {
+    var vm = new Vue({
+        el: '#vm',
+        data: {
+            proofread: '',
+            review: '',
+            countersign: '',
+            approved: '',
+            Issued: ''           
+        },
+        methods: {
+            submit: function (event) {
+                event.preventDefault();
+                var $form = $('#vm');
+                if (! this.proofread.trim()) {
+                    return $form.showFormError('请选择校对者');
+                }
+                if (! this.review.trim()) {
+                    return $form.showFormError('请选择审核者');
+                }
+                if (! this.countersign.trim()) {
+                    return $form.showFormError('请选择会签者');
+                }
+                if (! this.approved.trim()) {
+                    return $form.showFormError('请选择批准者');
+                }
+                if (! this.Issued.trim()) {
+                    return $form.showFormError('请选择下发者');
+                }
+                $form.postJSON('/api/checkForm/', {
+                    proofread   : this.proofread.trim(),
+                    review      : this.review.trim(),
+                    countersign : this.countersign.trim(),
+                    approved    : this.approved.trim(),
+                    Issued      : this.Issued.trim(),
+                    file_id     : file_id
+                }, function (err, r) {
+                    if (err) {
+                        return $form.showFormError(err);
+                    }
+                    return location.assign('/');
+                });
+            }
+        }
+    });
+    $('#vm').show();
+});
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="uk-width-2-3">
+        <h1>文件审批！</h1>
+        <form id="vm" v-on="submit: submit" class="uk-form uk-form-stacked">
+            <div class="uk-alert uk-alert-danger uk-hidden"></div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">校对:</label>
+                <div class="uk-form-controls">
+                    <input v-model="proofread" type="text" maxlength="50" class="uk-width-1-1">
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">审核:</label>
+                <div class="uk-form-controls">
+                    <input v-model="review" type="text" maxlength="50" class="uk-width-1-1">
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">会签:</label>
+                <div class="uk-form-controls">
+                    <input v-model="countersign" type="text" maxlength="50" class="uk-width-1-1">
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">批准:</label>
+                <div class="uk-form-controls">
+                    <input v-model="approved" type="text" maxlength="50"  class="uk-width-1-1">
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">下发:</label>
+                <div class="uk-form-controls">
+                    <input v-model="Issued" type="text" maxlength="50"  class="uk-width-1-1">
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <button type="submit" class="uk-button uk-button-primary"><i class="uk-icon-save"></i> 审批</button>
+                <a href="/" class="uk-button"><i class="uk-icon-times"></i> 取消</a>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

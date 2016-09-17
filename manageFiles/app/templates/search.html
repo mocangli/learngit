@@ -1,0 +1,109 @@
+{% extends '__base__.html' %}
+
+{% block title %}搜索结果{% endblock %}
+
+{% block beforehead %}
+<script>
+
+Vue.filter('filter_time', function (value) {
+    var d = Date.parse(value)
+    var time = new Date(d)
+ return time.toLocaleString();;
+ })
+function initVM(data) {
+    $('#vm').show();
+    var vm = new Vue({
+        el: '#vm',
+        data: {
+            files: data.files,
+            page: data.page
+        },
+        methods: {
+            check_form: function (file) {
+                location.assign('/checkForm/?id=' + file.pk);
+            },
+            delete_file: function (file) {
+                if (confirm('确认要删除“' + file.fields.filename + '”？删除后不可恢复！')) {
+                    postJSON('/api/filedelete/?id=' + file.pk, function (err, r) {
+                        if (err) {
+                            return alert(err.message || err.error || err);
+                        }
+                        refresh();
+                    });
+                }
+            }
+        }
+    });  
+    $('#vm').show();         
+}
+
+$(function() {
+    getJSON('/api/searchfile', {
+        page: {{ page_index }},
+        filenum: {{ filenum | safe}}
+    }, function (err, results) {
+        if (err) {
+            return fatal(err);
+        }
+        $('#loading').hide();
+        initVM(results);
+    });
+});
+
+
+</script>
+{% endblock %}
+
+{% block content %}
+    <div class="uk-width-1-1 uk-margin-bottom">
+        <div class="uk-panel uk-panel-box">
+            <ul class="uk-breadcrumb">
+                <li class="uk-active"><span>搜索结果</span></li>
+                <li><a href="/signOff/">到达的工作流</a></li>
+                <li><a href="/">创建的工作流</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="error" class="uk-width-1-1">
+    </div>
+
+    <div id="loading" class="uk-width-1-1 uk-text-center">
+        <span><i class="uk-icon-spinner uk-icon-medium uk-icon-spin"></i> 正在加载...</span>
+    </div>
+
+    <div id="vm" class="uk-width-1-1" style="display:none">
+        <a href="/api/fileupload/" class="uk-button uk-button-primary"><i class="uk-icon-plus"></i> 上传文件</a>
+        <table class="uk-table uk-table-hover">
+            <thead>
+                <tr>
+                    <th class="uk-width-3-10">文件名</th>
+                    <th class="uk-width-2-10">图号</th>
+                    <th class="uk-width-3-10">创建时间</th>
+                    <th class="uk-width-1-10">作者</th>
+                    <th class="uk-width-1-10">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-repeat="file: files" >
+                    <td>
+                        <a v-attr="href:'/api/filedownload/?id='+file.pk" v-text="file.fields.filename"></a>
+                    </td>
+                    <td>
+                        <a v-attr="href:'/api/filedownload/?id='+file.pk" v-text="file.fields.filenumber"></a>
+                    </td>
+                    <td>
+                        <span v-text="file.fields.created_at | filter_time"></span>
+                    </td>
+                    <td>
+                        <span v-text="file.fields.user_name"></span>
+                    </td>
+                    <td><a href="#0" v-on="click: check_form(file)"><i class="uk-icon-edit"></i>
+                        <a href="#0" v-on="click: delete_file(file)"><i class="uk-icon-trash-o"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div v-component="pagination" v-with="page"></div>
+    </div>
+{% endblock %}

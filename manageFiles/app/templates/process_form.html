@@ -1,0 +1,127 @@
+{% extends '__base__.html' %}
+
+{% block title %}签审流程{% endblock %}
+
+{% block beforehead %}
+
+<script>
+
+$(function () {
+    var ID = '{{ id }}',
+        comment_url = '/api/processForm/comments/',
+        back_url    =  '/api/backprocess/',
+        radio1 = $('#form-s-r1'),
+        radio2 = $('#form-s-r2'),
+        $form = $('#form-comment');
+    if (ID) {
+        getJSON('/api/process/' , {
+        id: ID
+    }, function (err, form) {
+            if (err) {
+                return fatal(err);
+            }
+            $('#loading').hide();
+            var ul1 = $('#reviewForm'),
+                ul2 = $('#comment')
+            var file_url = '/api/filedownload/?id='+form.files[0].pk;
+            ul1.append('<li>校对：'+form.review.proofread_user+'</li>')
+            ul1.append('<li>审核：'+form.review.review_user+'</li>')
+            ul1.append('<li>会签：'+form.review.countersign_user+'</li>')
+            ul1.append('<li>批准：'+form.review.approved_user+'</li>')
+            ul1.append('<li>下发：'+form.review.Issued_user+'</li>')
+            ul1.append("<li> 待审批文件：<a href=\'"+file_url+"\'>"+form.files[0].fields.filename +'</a></li>')
+           for (var comment of form.comments) {
+           ul2.append('<li>'+comment.fields.user_name+' : '+comment.fields.content+'</li>')
+           }
+
+        });
+    }
+    else {
+        $('#loading').hide();
+        initVM({
+            proofread: '',
+            review: '',
+            countersign: '',
+            approved: '',
+            Issued: '' 
+        });
+    }
+    $form.submit(function (e) {
+            e.preventDefault();
+            $form.showFormError('');
+            var content = $form.find('textarea').val().trim();
+//jQuery中判断radio是否选中
+            if (content==='') {
+                return $form.showFormError('请输审批意见！');
+            }
+            if (radio1.is(':checked')) {
+                $form.postJSON(comment_url, { content: content,id: ID }, function (err, result) {
+                if (err) {
+                    return $form.showFormError(err);
+                }
+                alert('审批成功！');
+                location.assign('/')
+            });
+            }
+            if (radio2.is(':checked')) {
+                $form.postJSON(back_url, { content: content,id: ID }, function (err, result) {
+                if (err) {
+                    return $form.showFormError(err);
+                }
+                alert('审批成功！');
+                location.assign('/')
+            });
+
+            }
+            
+         })
+});
+</script>
+
+{% endblock %}
+
+{% block content %}
+    <div id="error" class="uk-width-1-1">
+    </div>
+
+    <div id="loading" class="uk-width-1-1 uk-text-center">
+        <span><i class="uk-icon-spinner uk-icon-medium uk-icon-spin"></i> 正在加载...</span>
+    </div>
+
+    <div  class="uk-width-medium-3-4">
+        <ul id='reviewForm' class="uk-list uk-list-striped uk-list-space">
+
+        </ul>
+
+
+        <hr class="uk-article-divider">
+
+        <h3>审核意见</h3>
+
+        <article class="uk-comment">
+
+            <div class="uk-comment-body">
+                <form id="form-comment" class="uk-form">
+                    <div class="uk-alert uk-alert-danger uk-hidden"></div>
+                    <div class="uk-form-row">
+                        <textarea rows="6" placeholder="说点什么吧" style="width:100%;resize:none;"></textarea>
+                        <p><input id="form-s-r1" type="radio" checked="" name="radio2" value="1">
+                        <label for="form-s-r1">进入下一节点</label>
+                        <label><input id="form-s-r2" type="radio" name="radio2" value="2">退回</label></p>
+                    </div>
+                    <div class="uk-form-row"> 
+                        <button type="submit" class="uk-button uk-button-primary"><i class="uk-icon-comment"></i> 提交</button>
+                    </div>
+                </form>
+            </div>
+        </article>
+
+        <hr class="uk-article-divider">
+
+                <h3>流程进度</h3>
+
+        <ul id='comment' class="uk-list uk-list-striped uk-list-space">
+
+        </ul>
+
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends '__base__.html' %}
+
+{% block title %}文件上传{% endblock %}
+
+{% block beforehead %}
+<script>
+$(function () {
+    var file=$('#id_file_path');
+    file.change(function(){
+        var filename = $('#id_filename');
+        if (!file.val() || !(file.val().endsWith('.jpg') || file.val().endsWith('.png') || file.val().endsWith('.gif'))) {
+    alert('Can only upload image file.');
+    return false;
+}
+        getJSON('/api/searchfile', {
+            filenum:'*'+file.val()+'*'
+    }, function (err, results) {       
+        if (results.files.length != 0) {
+            alert('文件名已存在，请检查文件名后上传！'); 
+            return           
+        }
+        filename.val(file.val());      
+    });
+    
+        
+    });
+
+})
+</script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="uk-width-2-3">
+        <h1>请按要求填入以下信息！</h1>
+        <form id='fileform' class="uk-form uk-form-stacked" enctype='multipart/form-data' method='POST'>
+            <div class="uk-alert uk-alert-danger uk-hidden"></div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">文件名:</label>
+                <div class="uk-form-controls">
+                    {{ form.filename }}
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">图号:</label>
+                <div class="uk-form-controls">
+                    {{ form.filenumber }}
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">部门:</label>
+                <div class="uk-form-controls">
+                    {{ form.department }}
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">说明:</label>
+                <div class="uk-form-controls">
+                    {{ form.caption }}
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">变更原因:</label>
+                <div class="uk-form-controls">
+                    {{ form.reason }}
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">下发单位:</label>
+                <div class="uk-form-controls">
+                    {{ form.department_down }}
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">上传附件:</label>
+                <div class="uk-form-controls">
+                    {{ form.file_path }}
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <button type="submit" class="uk-button uk-button-primary"><i class="uk-icon-user"></i> 提交</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
